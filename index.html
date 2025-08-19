@@ -86,7 +86,7 @@
 
     <script>
         // ===================================================================================
-        // PENTING: Ganti URL di bawah ini dengan URL Web App dari Google Apps Script Anda
+        // URL Web App dari Google Apps Script Anda sudah dimasukkan di sini
         // ===================================================================================
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzCa4bEDPnkyIW_DhXEHiYa8S_tBdRboIUY2bUqfepyFzaUCWbYoxXrM4qF4hyvKlA/exec";
         // ===================================================================================
@@ -240,10 +240,6 @@
             event.preventDefault();
 
             // Validasi
-            if (SCRIPT_URL === "MASUKKAN_URL_WEB_APP_ANDA_DI_SINI") {
-                displayMessage('error', 'Konfigurasi belum selesai. Harap masukkan URL Web App pada file skrip.');
-                return;
-            }
             if (!photoData) {
                 displayMessage('error', 'Silakan ambil foto selfie terlebih dahulu.');
                 return;
