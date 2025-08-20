@@ -3,476 +3,416 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Absensi Karyawan</title>
-    <!-- Memuat Tailwind CSS untuk styling -->
+    <title>Absensi Karyawan - PT. Transwisata Prima Aviation</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Memuat library ikon Lucide -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Custom font */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Style untuk video dan canvas agar responsif */
-        #camera-stream, #photo-canvas {
-            width: 100%;
-            height: auto;
-            aspect-ratio: 4 / 3;
-            object-fit: cover;
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+<body class="bg-gray-100">
 
-    <!-- Container Utama -->
-    <div class="w-full max-w-md mx-auto">
-
-        <!-- ======================================================================= -->
-        <!-- BAGIAN REGISTRASI (Tersembunyi di awal) -->
-        <!-- ======================================================================= -->
-        <div id="register-section" class="hidden">
-            <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8">
-                <div class="text-center mb-6">
-                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Registrasi Akun</h1>
-                    <p class="text-gray-500 mt-1">Buat akun baru Anda</p>
-                </div>
-                <form id="register-form" class="space-y-5">
-                    <div>
-                        <label for="register-email" class="block text-sm font-medium text-gray-700">Email</label>
-                        <input type="email" id="register-email" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    </div>
-                    <div>
-                        <label for="register-password" class="block text-sm font-medium text-gray-700">Password</label>
-                        <input type="password" id="register-password" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    </div>
-                     <div>
-                        <label for="confirm-password" class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
-                        <input type="password" id="confirm-password" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    </div>
-                    <button type="submit" id="register-btn" class="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
-                        <span id="register-btn-text">Daftar</span>
-                        <div id="register-loader" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    </button>
-                    <p id="register-message" class="text-sm text-center"></p>
-                </form>
-                <p class="text-center text-sm mt-4">
-                    Sudah punya akun? 
-                    <button id="show-login-link" class="font-medium text-indigo-600 hover:text-indigo-500">Login di sini</button>
-                </p>
+    <div class="container mx-auto max-w-2xl p-4 sm:p-6 lg:p-8">
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <!-- Header -->
+            <div class="bg-blue-800 p-6 text-white text-center">
+                <h1 class="text-2xl font-bold">Aplikasi Absensi Karyawan</h1>
+                <p class="text-blue-200">PT. Transwisata Prima Aviation</p>
             </div>
-        </div>
 
-        <!-- ======================================================================= -->
-        <!-- BAGIAN LOGIN (Tampil di awal) -->
-        <!-- ======================================================================= -->
-        <div id="login-section">
-            <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8">
-                <div class="text-center mb-6">
-                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Login Absensi</h1>
-                    <p class="text-gray-500 mt-1">Silakan masuk untuk melanjutkan</p>
-                </div>
-                <form id="login-form" class="space-y-5">
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                        <input type="email" id="email" name="email" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    </div>
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                        <input type="password" id="password" name="password" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                    </div>
-                    <button type="submit" id="login-btn" class="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
-                        <span id="login-btn-text">Login</span>
-                        <div id="login-loader" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    </button>
-                    <p id="login-message" class="text-sm text-center"></p>
-                </form>
-                 <p class="text-center text-sm mt-4">
-                    Belum punya akun? 
-                    <button id="show-register-link" class="font-medium text-indigo-600 hover:text-indigo-500">Daftar di sini</button>
-                </p>
-            </div>
-        </div>
-
-        <!-- ======================================================================= -->
-        <!-- BAGIAN ABSENSI (Tersembunyi) -->
-        <!-- ======================================================================= -->
-        <div id="attendance-section" class="hidden">
-            <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8">
-                <div class="flex justify-between items-center mb-4 pb-4 border-b">
-                    <div>
-                        <p class="text-sm text-gray-600">Selamat datang,</p>
-                        <p id="user-email" class="font-semibold text-gray-800"></p>
-                    </div>
-                    <button id="logout-btn" class="flex items-center gap-2 text-sm text-red-500 font-semibold hover:text-red-700">
-                        <i data-lucide="log-out" class="w-4 h-4"></i>
-                        <span>Logout</span>
-                    </button>
-                </div>
-                <div class="text-center mb-6">
-                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Absensi Karyawan</h1>
-                    <p id="current-time" class="text-gray-500 mt-1">Memuat waktu...</p>
-                </div>
-                <form id="attendance-form" class="space-y-5">
-                    <!-- Form absensi tetap sama -->
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Foto Selfie</label>
-                        <div class="relative bg-gray-200 rounded-lg overflow-hidden border-2 border-dashed border-gray-300">
-                            <video id="camera-stream" autoplay playsinline class="rounded-lg"></video>
-                            <canvas id="photo-canvas" class="hidden rounded-lg"></canvas>
-                            <div id="camera-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
-                                <i data-lucide="camera" class="w-12 h-12 mb-2"></i>
-                                <span>Kamera tidak aktif</span>
-                            </div>
+            <div class="p-6 space-y-6">
+                <!-- Data Karyawan -->
+                <div id="section-data-karyawan" class="space-y-4">
+                    <h2 class="text-xl font-semibold text-gray-800 border-b pb-2">Data Karyawan</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700">Nama</label>
+                            <input type="text" id="name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                         </div>
-                        <button type="button" id="capture-btn" class="mt-3 w-full flex items-center justify-center gap-2 bg-indigo-600 text-white font-semibold py-2.5 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 disabled:bg-gray-400">
-                            <i data-lucide="camera" class="w-5 h-5"></i>
-                            <span id="capture-text">Ambil Foto</span>
-                        </button>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" id="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="division" class="block text-sm font-medium text-gray-700">Divisi</label>
+                            <input type="text" id="division" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="position" class="block text-sm font-medium text-gray-700">Jabatan</label>
+                            <input type="text" id="position" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="duty_as" class="block text-sm font-medium text-gray-700">Duty As</label>
+                            <select id="duty_as" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option>Pilot</option>
+                                <option>Co-Pilot</option>
+                                <option>Pramugari</option>
+                                <option>Teknisi</option>
+                                <option>Staf</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="work_type" class="block text-sm font-medium text-gray-700">Tipe Pekerjaan</label>
+                            <select id="work_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <option>Work From Office (WFO)</option>
+                                <option>Work From Home (WFH)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Absen -->
+                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                     <h3 class="text-lg font-medium text-gray-700">Status Absensi Saat Ini</h3>
+                     <p id="status-absen" class="text-2xl font-bold text-blue-600 mt-1">Belum Absen</p>
+                </div>
+
+
+                <!-- Absen Masuk -->
+                <div id="section-absen-masuk" class="space-y-4">
+                    <h2 class="text-xl font-semibold text-gray-800 border-b pb-2">Absen Masuk</h2>
+                    
+                    <!-- Foto Masuk -->
+                    <div class="text-center">
+                        <img id="foto-masuk-preview" src="https://placehold.co/300x225/e2e8f0/94a3b8?text=Foto+Masuk" alt="Foto Masuk" class="mx-auto rounded-lg shadow-md w-full max-w-xs">
+                        <button id="btn-ambil-foto-masuk" class="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Ambil Foto</button>
+                    </div>
+
+                    <!-- Lokasi Masuk -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Lokasi Masuk</label>
+                        <div class="mt-1 flex items-center space-x-2">
+                           <p id="location-masuk" class="w-full text-sm text-gray-600 bg-gray-100 p-2 rounded-md">Belum ada data lokasi</p>
+                           <button id="btn-get-location-masuk" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 text-sm">Dapatkan Lokasi</button>
+                        </div>
+                    </div>
+                    
+                    <button id="btn-absen-masuk" class="w-full py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400">Kirim Absen Masuk</button>
+                    
+                    <div id="info-absen-masuk" class="hidden bg-green-50 p-4 rounded-lg">
+                        <p class="font-semibold">Absen Masuk:</p>
+                        <p id="waktu-absen-masuk"></p>
+                        <p id="status-masuk" class="font-bold"></p>
+                    </div>
+
+                    <div id="alasan-terlambat-container" class="hidden">
+                        <label for="alasan-terlambat" class="block text-sm font-medium text-gray-700">Alasan Terlambat</label>
+                        <textarea id="alasan-terlambat" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                    </div>
+                </div>
+
+                <!-- Absen Pulang -->
+                <div id="section-absen-pulang" class="hidden space-y-4">
+                    <h2 class="text-xl font-semibold text-gray-800 border-b pb-2">Absen Pulang</h2>
+                    
+                    <!-- Remark & Foto Pekerjaan -->
+                    <div>
+                        <label for="remark-pekerjaan" class="block text-sm font-medium text-gray-700">Remark Pekerjaan Hari Ini</label>
+                        <textarea id="remark-pekerjaan" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
                     </div>
                     <div>
-                        <label for="nama" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
-                        <input type="text" id="nama" name="nama" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <label for="foto-pekerjaan" class="block text-sm font-medium text-gray-700">Foto Pekerjaan Hari Ini</label>
+                        <input type="file" id="foto-pekerjaan" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <img id="foto-pekerjaan-preview" class="hidden mt-2 rounded-lg shadow-md w-full max-w-xs mx-auto" alt="Preview Foto Pekerjaan">
                     </div>
+
+                    <!-- Lokasi Pulang -->
                     <div>
-                        <label for="jabatan" class="block text-sm font-medium text-gray-700">Jabatan</label>
-                        <input type="text" id="jabatan" name="jabatan" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <label class="block text-sm font-medium text-gray-700">Lokasi Pulang</label>
+                         <div class="mt-1 flex items-center space-x-2">
+                           <p id="location-pulang" class="w-full text-sm text-gray-600 bg-gray-100 p-2 rounded-md">Belum ada data lokasi</p>
+                           <button id="btn-get-location-pulang" class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 text-sm">Dapatkan Lokasi</button>
+                        </div>
                     </div>
-                    <div>
-                        <label for="pekerjaan" class="block text-sm font-medium text-gray-700">Jenis Pekerjaan / Tugas Hari Ini</label>
-                        <textarea id="pekerjaan" name="pekerjaan" rows="3" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+                    
+                    <button id="btn-absen-pulang" class="w-full py-3 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors">Kirim Absen Pulang</button>
+
+                    <div id="info-absen-pulang" class="hidden bg-red-50 p-4 rounded-lg space-y-2">
+                         <p><span class="font-semibold">Absen Pulang:</span> <span id="waktu-absen-pulang"></span></p>
+                         <p><span class="font-semibold">Status Pulang:</span> <span id="status-pulang" class="font-bold"></span></p>
+                         <p><span class="font-semibold">Total Waktu Kerja:</span> <span id="total-work-time"></span></p>
+                         <p id="total-overtime-container" class="hidden"><span class="font-semibold">Total Lembur:</span> <span id="total-overtime"></span></p>
                     </div>
-                    <div id="gps-info" class="text-xs text-center text-gray-500 bg-gray-50 p-3 rounded-lg flex items-center justify-center gap-2">
-                        <i data-lucide="map-pin" class="w-4 h-4 inline-block"></i>
-                        <span id="gps-status">Mendeteksi lokasi GPS...</span>
-                        <button type="button" id="retry-gps-btn" class="hidden text-indigo-600 font-semibold hover:underline">Coba Lagi</button>
-                    </div>
-                    <button type="submit" id="submit-btn" class="w-full flex items-center justify-center gap-2 bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed">
-                        <span id="submit-text">Kirim Absensi</span>
-                        <div id="submit-loader" class="hidden w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    </button>
-                </form>
-                <div id="status-message" class="mt-4 text-center text-sm"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <script>
-        // ===================================================================================
-        // URL Web App dari Google Apps Script Anda
-        // ===================================================================================
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzibc28PIFuFtkssKxC9RG8Bl2RG5FGDS9bPGk2UZGcjkLU_GdI_n2UJ5oOEYCyj8I/exec";
+    <!-- Modal Kamera -->
+    <div id="camera-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-white p-4 rounded-lg shadow-xl w-full max-w-lg">
+            <video id="camera-stream" class="w-full rounded-md" autoplay></video>
+            <div class="mt-4 flex justify-center space-x-4">
+                <button id="btn-capture" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Ambil Gambar</button>
+                <button id="btn-close-modal" class="px-6 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // State
+    let clockInTime = null;
+    let clockOutTime = null;
+    let cameraType = null; // 'masuk' or 'pulang'
+
+    // DOM Elements
+    const getEl = (id) => document.getElementById(id);
+
+    const elements = {
+        statusAbsen: getEl('status-absen'),
+        sectionDataKaryawan: getEl('section-data-karyawan'),
+        sectionAbsenMasuk: getEl('section-absen-masuk'),
+        sectionAbsenPulang: getEl('section-absen-pulang'),
         
-        // Inisialisasi elemen DOM
-        const registerSection = document.getElementById('register-section');
-        const loginSection = document.getElementById('login-section');
-        const attendanceSection = document.getElementById('attendance-section');
-        
-        const registerForm = document.getElementById('register-form');
-        const loginForm = document.getElementById('login-form');
-        
-        const showLoginLink = document.getElementById('show-login-link');
-        const showRegisterLink = document.getElementById('show-register-link');
-        
-        const registerMessage = document.getElementById('register-message');
-        const loginMessage = document.getElementById('login-message');
-        
-        const userEmailEl = document.getElementById('user-email');
-        const logoutBtn = document.getElementById('logout-btn');
+        // Masuk
+        btnAmbilFotoMasuk: getEl('btn-ambil-foto-masuk'),
+        fotoMasukPreview: getEl('foto-masuk-preview'),
+        btnGetLocationMasuk: getEl('btn-get-location-masuk'),
+        locationMasuk: getEl('location-masuk'),
+        btnAbsenMasuk: getEl('btn-absen-masuk'),
+        infoAbsenMasuk: getEl('info-absen-masuk'),
+        waktuAbsenMasuk: getEl('waktu-absen-masuk'),
+        statusMasuk: getEl('status-masuk'),
+        alasanTerlambatContainer: getEl('alasan-terlambat-container'),
 
-        const video = document.getElementById('camera-stream');
-        const canvas = document.getElementById('photo-canvas');
-        const captureBtn = document.getElementById('capture-btn');
-        const captureText = document.getElementById('capture-text');
-        const attendanceForm = document.getElementById('attendance-form');
-        const submitBtn = document.getElementById('submit-btn');
-        const submitText = document.getElementById('submit-text');
-        const submitLoader = document.getElementById('submit-loader');
-        const gpsStatus = document.getElementById('gps-status');
-        const retryGpsBtn = document.getElementById('retry-gps-btn');
-        const gpsInfoDiv = document.getElementById('gps-info');
-        const statusMessage = document.getElementById('status-message');
-        const currentTimeEl = document.getElementById('current-time');
-        const cameraPlaceholder = document.getElementById('camera-placeholder');
+        // Pulang
+        btnGetLocationPulang: getEl('btn-get-location-pulang'),
+        locationPulang: getEl('location-pulang'),
+        btnAbsenPulang: getEl('btn-absen-pulang'),
+        infoAbsenPulang: getEl('info-absen-pulang'),
+        waktuAbsenPulang: getEl('waktu-absen-pulang'),
+        statusPulang: getEl('status-pulang'),
+        totalWorkTime: getEl('total-work-time'),
+        totalOvertimeContainer: getEl('total-overtime-container'),
+        totalOvertime: getEl('total-overtime'),
+        fotoPekerjaan: getEl('foto-pekerjaan'),
+        fotoPekerjaanPreview: getEl('foto-pekerjaan-preview'),
 
-        // State aplikasi
-        let loggedInUserEmail = null;
-        let photoData = null;
-        let locationData = null;
-        let stream = null;
+        // Modal
+        cameraModal: getEl('camera-modal'),
+        cameraStream: getEl('camera-stream'),
+        btnCapture: getEl('btn-capture'),
+        btnCloseModal: getEl('btn-close-modal'),
+    };
 
-        // --- FUNGSI NAVIGASI ---
-        function showPage(page) {
-            registerSection.classList.add('hidden');
-            loginSection.classList.add('hidden');
-            attendanceSection.classList.add('hidden');
-            if (page === 'login') {
-                loginSection.classList.remove('hidden');
-            } else if (page === 'register') {
-                registerSection.classList.remove('hidden');
-            } else if (page === 'attendance') {
-                attendanceSection.classList.remove('hidden');
-            }
-        }
+    // --- Functions ---
 
-        // --- FUNGSI-FUNGSI REGISTRASI & LOGIN ---
-        async function handleRegister(event) {
-            event.preventDefault();
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-
-            if (password !== confirmPassword) {
-                registerMessage.textContent = "Password tidak cocok!";
-                registerMessage.className = 'text-sm text-center text-red-500';
-                return;
-            }
-
-            setButtonLoading('register-btn', true);
-            registerMessage.textContent = "Mendaftarkan...";
-            registerMessage.className = 'text-sm text-center text-blue-500';
-
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'register', email, password }),
-                });
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    registerMessage.textContent = "Registrasi berhasil! Silakan login.";
-                    registerMessage.className = 'text-sm text-center text-green-500';
-                    registerForm.reset();
-                    setTimeout(() => showPage('login'), 2000);
-                } else {
-                    throw new Error(result.message);
+    // Geolocation
+    const getLocation = (element) => {
+        if (navigator.geolocation) {
+            element.innerHTML = '<div class="loader mx-auto"></div>';
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const { latitude, longitude } = position.coords;
+                    try {
+                        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                        const data = await response.json();
+                        element.textContent = data.display_name || 'Lokasi tidak ditemukan';
+                    } catch (error) {
+                        element.textContent = 'Gagal mengambil nama lokasi';
+                    }
+                },
+                (error) => {
+                    let errorMessage;
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = "Izin lokasi ditolak.";
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = "Informasi lokasi tidak tersedia.";
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = "Permintaan lokasi timed out.";
+                            break;
+                        default:
+                            errorMessage = "Terjadi kesalahan tidak diketahui.";
+                            break;
+                    }
+                    element.textContent = errorMessage;
                 }
-            } catch (error) {
-                registerMessage.textContent = error.message || "Gagal mendaftar. Coba lagi.";
-                registerMessage.className = 'text-sm text-center text-red-500';
-            } finally {
-                setButtonLoading('register-btn', false);
-            }
+            );
+        } else {
+            element.textContent = "Geolocation tidak didukung oleh browser ini.";
         }
+    };
 
-        async function handleLogin(event) {
-            event.preventDefault();
-            const email = loginForm.email.value;
-            const password = loginForm.password.value;
+    // Camera
+    const openCamera = (type) => {
+        cameraType = type;
+        elements.cameraModal.classList.remove('hidden');
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                elements.cameraStream.srcObject = stream;
+            })
+            .catch(err => {
+                alert("Tidak bisa mengakses kamera: " + err);
+                closeCamera();
+            });
+    };
 
-            setButtonLoading('login-btn', true);
-            loginMessage.textContent = "Mencoba masuk...";
-            loginMessage.className = 'text-sm text-center text-blue-500';
-
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'login', email, password }),
-                });
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    loggedInUserEmail = email;
-                    userEmailEl.textContent = loggedInUserEmail;
-                    loginForm.reset();
-                    loginMessage.textContent = "";
-                    showPage('attendance');
-                    startCamera();
-                    getGPSLocation();
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                loginMessage.textContent = error.message || "Gagal login. Cek email/password.";
-                loginMessage.className = 'text-sm text-center text-red-500';
-            } finally {
-                setButtonLoading('login-btn', false);
-            }
+    const closeCamera = () => {
+        const stream = elements.cameraStream.srcObject;
+        if (stream) {
+            const tracks = stream.getTracks();
+            tracks.forEach(track => track.stop());
         }
+        elements.cameraModal.classList.add('hidden');
+    };
 
-        function handleLogout() {
-            loggedInUserEmail = null;
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-            showPage('login');
+    const takePicture = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = elements.cameraStream.videoWidth;
+        canvas.height = elements.cameraStream.videoHeight;
+        const context = canvas.getContext('2d');
+        context.drawImage(elements.cameraStream, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/png');
+        
+        if (cameraType === 'masuk') {
+            elements.fotoMasukPreview.src = dataUrl;
         }
+        
+        closeCamera();
+    };
+    
+    // Time formatting
+    const formatTime = (date) => date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const formatDate = (date) => date.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // --- FUNGSI-FUNGSI ABSENSI ---
-        function updateTime() {
-            const now = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-            currentTimeEl.textContent = now.toLocaleDateString('id-ID', options);
-        }
+    // --- Event Listeners ---
+    
+    elements.btnAmbilFotoMasuk.addEventListener('click', () => openCamera('masuk'));
+    elements.btnGetLocationMasuk.addEventListener('click', () => getLocation(elements.locationMasuk));
+    elements.btnGetLocationPulang.addEventListener('click', () => getLocation(elements.locationPulang));
 
-        async function startCamera() {
-            try {
-                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                    stream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } } 
-                    });
-                    video.srcObject = stream;
-                    cameraPlaceholder.classList.add('hidden');
-                    captureBtn.disabled = false;
-                } else { throw new Error('getUserMedia not supported'); }
-            } catch (error) {
-                console.error("Error accessing camera: ", error);
-                cameraPlaceholder.innerHTML = `<i data-lucide="video-off" class="w-12 h-12 mb-2 text-red-500"></i><span>Gagal akses kamera.</span>`;
-                lucide.createIcons();
-                captureBtn.disabled = true;
-            }
-        }
+    elements.btnCapture.addEventListener('click', takePicture);
+    elements.btnCloseModal.addEventListener('click', closeCamera);
 
-        function capturePhoto() {
-            if (!stream) return;
-            if (photoData) {
-                photoData = null;
-                canvas.classList.add('hidden');
-                video.classList.remove('hidden');
-                captureText.textContent = 'Ambil Foto';
-                captureBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-                captureBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
-                return;
-            }
-            const context = canvas.getContext('2d');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            photoData = canvas.toDataURL('image/jpeg', 0.8);
-            video.classList.add('hidden');
-            canvas.classList.remove('hidden');
-            captureText.textContent = 'Ambil Ulang Foto';
-            captureBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
-            captureBtn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
-        }
-
-        function getGPSLocation() {
-            gpsStatus.textContent = 'Mendeteksi lokasi GPS...';
-            retryGpsBtn.classList.add('hidden');
-            gpsInfoDiv.classList.remove('text-red-600', 'text-green-600');
-            locationData = null;
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        locationData = {
-                            latitude: position.coords.latitude,
-                            longitude: position.coords.longitude,
-                            accuracy: position.coords.accuracy
-                        };
-                        gpsStatus.textContent = `Lokasi Ditemukan (Akurasi: ${Math.round(locationData.accuracy)}m)`;
-                        gpsInfoDiv.classList.add('text-green-600');
-                    },
-                    (error) => {
-                        console.error("Error getting location. Object:", error);
-                        let errorMessage = "Gagal mendapatkan lokasi. Pastikan GPS aktif.";
-                        gpsStatus.textContent = errorMessage;
-                        gpsInfoDiv.classList.add('text-red-600');
-                        retryGpsBtn.classList.remove('hidden');
-                    },
-                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-                );
-            } else {
-                gpsStatus.textContent = "Geolocation tidak didukung browser ini.";
-                gpsInfoDiv.classList.add('text-red-600');
-            }
-        }
-
-        async function handleFormSubmit(event) {
-            event.preventDefault();
-            if (!photoData) {
-                displayMessage('error', 'Silakan ambil foto selfie terlebih dahulu.');
-                return;
-            }
-            if (!locationData) {
-                displayMessage('error', 'Lokasi GPS belum didapatkan. Coba lagi.');
-                return;
-            }
-            setButtonLoading('submit-btn', true);
-            displayMessage('info', 'Mengirim data absensi...');
-            const formData = new FormData(attendanceForm);
-            const dataToSend = {
-                action: 'attendance',
-                email: loggedInUserEmail,
-                timestamp: new Date().toISOString(),
-                nama: formData.get('nama'),
-                jabatan: formData.get('jabatan'),
-                pekerjaan: formData.get('pekerjaan'),
-                latitude: locationData.latitude,
-                longitude: locationData.longitude,
-                accuracy: locationData.accuracy,
-                photoBase64: photoData
+    elements.fotoPekerjaan.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                elements.fotoPekerjaanPreview.src = e.target.result;
+                elements.fotoPekerjaanPreview.classList.remove('hidden');
             };
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dataToSend)
-                });
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    displayMessage('success', 'Absensi berhasil dikirim! Terima kasih.');
-                    attendanceForm.reset();
-                    photoData = null;
-                    canvas.classList.add('hidden');
-                    video.classList.remove('hidden');
-                    captureText.textContent = 'Ambil Foto';
-                    captureBtn.classList.remove('bg-yellow-500', 'hover:bg-yellow-600');
-                    captureBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
-                    getGPSLocation();
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                console.error('Error submitting form:', error);
-                displayMessage('error', 'Gagal mengirim absensi. Cek koneksi internet Anda.');
-            } finally {
-                setButtonLoading('submit-btn', false);
-            }
+            reader.readAsDataURL(file);
         }
+    });
+
+    // Absen Masuk
+    elements.btnAbsenMasuk.addEventListener('click', () => {
+        // Simple validation
+        if (!getEl('name').value || !getEl('email').value) {
+            alert('Nama dan Email wajib diisi!');
+            return;
+        }
+        if (elements.fotoMasukPreview.src.includes('placehold.co')) {
+            alert('Silakan ambil foto terlebih dahulu.');
+            return;
+        }
+         if (elements.locationMasuk.textContent.includes('Belum ada data')) {
+            alert('Silakan dapatkan lokasi terlebih dahulu.');
+            return;
+        }
+
+        clockInTime = new Date();
+        elements.waktuAbsenMasuk.textContent = `${formatDate(clockInTime)}, ${formatTime(clockInTime)}`;
         
-        // --- FUNGSI HELPERS ---
-        function setButtonLoading(btnId, isLoading) {
-            const button = document.getElementById(btnId);
-            const text = document.getElementById(`${btnId}-text`);
-            const loader = document.getElementById(btnId.replace('-btn', '-loader'));
-            button.disabled = isLoading;
-            if (isLoading) {
-                text?.classList.add('hidden');
-                loader?.classList.remove('hidden');
-            } else {
-                text?.classList.remove('hidden');
-                loader?.classList.add('hidden');
-            }
+        const jamMasuk = clockInTime.getHours();
+        const menitMasuk = clockInTime.getMinutes();
+
+        if (jamMasuk > 9 || (jamMasuk === 9 && menitMasuk > 0)) {
+            elements.statusMasuk.textContent = "Anda Terlambat Absen";
+            elements.statusMasuk.className = "font-bold text-red-600";
+            elements.alasanTerlambatContainer.classList.remove('hidden');
+        } else {
+            elements.statusMasuk.textContent = "Terima Kasih, Anda Telah Absen Tepat Waktu";
+            elements.statusMasuk.className = "font-bold text-green-600";
         }
 
-        function displayMessage(type, message) {
-            statusMessage.textContent = message;
-            statusMessage.className = 'mt-4 text-center text-sm';
-            const typeClassMap = { success: 'text-green-600', error: 'text-red-500', info: 'text-blue-500' };
-            if (typeClassMap[type]) {
-                statusMessage.classList.add(typeClassMap[type]);
-            }
+        elements.infoAbsenMasuk.classList.remove('hidden');
+        elements.statusAbsen.textContent = "On Working";
+        elements.statusAbsen.className = "text-2xl font-bold text-green-600 mt-1";
+
+        // UI update
+        elements.btnAbsenMasuk.disabled = true;
+        elements.btnAbsenMasuk.textContent = "Absen Masuk Telah Direkam";
+        elements.btnAmbilFotoMasuk.disabled = true;
+        elements.btnGetLocationMasuk.disabled = true;
+        Array.from(elements.sectionDataKaryawan.querySelectorAll('input, select')).forEach(el => el.disabled = true);
+        elements.sectionAbsenPulang.classList.remove('hidden');
+    });
+
+    // Absen Pulang
+    elements.btnAbsenPulang.addEventListener('click', () => {
+        clockOutTime = new Date();
+        elements.waktuAbsenPulang.textContent = `${formatDate(clockOutTime)}, ${formatTime(clockOutTime)}`;
+
+        const jamPulang = clockOutTime.getHours();
+        const menitPulang = clockOutTime.getMinutes();
+
+        if (jamPulang < 17) {
+            elements.statusPulang.textContent = "Anda Pulang Sebelum Waktunya";
+            elements.statusPulang.className = "font-bold text-yellow-600";
+        } else if (jamPulang === 17 && menitPulang <= 30) {
+            elements.statusPulang.textContent = "Anda Pulang Tepat Waktu";
+            elements.statusPulang.className = "font-bold text-green-600";
+        } else {
+            elements.statusPulang.textContent = "Waktu Kerja Anda Melebihi Batas";
+            elements.statusPulang.className = "font-bold text-blue-600";
+            
+            // Hitung overtime
+            const batasWaktuKerja = new Date(clockOutTime);
+            batasWaktuKerja.setHours(17, 30, 0, 0);
+            
+            let diffOvertime = clockOutTime - batasWaktuKerja;
+            let s = Math.floor(diffOvertime / 1000);
+            let m = Math.floor(s / 60);
+            let h = Math.floor(m / 60);
+            s = s % 60;
+            m = m % 60;
+            
+            elements.totalOvertime.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            elements.totalOvertimeContainer.classList.remove('hidden');
         }
 
-        // --- INISIALISASI APLIKASI ---
-        showRegisterLink.addEventListener('click', () => showPage('register'));
-        showLoginLink.addEventListener('click', () => showPage('login'));
-        registerForm.addEventListener('submit', handleRegister);
-        loginForm.addEventListener('submit', handleLogin);
-        logoutBtn.addEventListener('click', handleLogout);
-        captureBtn.addEventListener('click', capturePhoto);
-        attendanceForm.addEventListener('submit', handleFormSubmit);
-        retryGpsBtn.addEventListener('click', getGPSLocation);
+        // Hitung total waktu kerja
+        let diffWork = clockOutTime - clockInTime;
+        let s = Math.floor(diffWork / 1000);
+        let m = Math.floor(s / 60);
+        let h = Math.floor(m / 60);
+        s = s % 60;
+        m = m % 60;
+        elements.totalWorkTime.textContent = `${String(h).padStart(2, '0')} jam, ${String(m).padStart(2, '0')} menit, ${String(s).padStart(2, '0')} detik`;
 
-        window.addEventListener('load', () => {
-            lucide.createIcons();
-            updateTime();
-            setInterval(updateTime, 1000);
-            showPage('login'); // Mulai dari halaman login
-        });
-    </script>
+        elements.infoAbsenPulang.classList.remove('hidden');
+        elements.statusAbsen.textContent = "Pulang";
+        elements.statusAbsen.className = "text-2xl font-bold text-gray-600 mt-1";
+
+        // UI update
+        elements.btnAbsenPulang.disabled = true;
+        elements.btnAbsenPulang.textContent = "Absen Pulang Telah Direkam";
+        elements.btnGetLocationPulang.disabled = true;
+    });
+});
+</script>
 </body>
 </html>
